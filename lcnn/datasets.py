@@ -13,9 +13,8 @@ from torch.utils.data.dataloader import default_collate
 
 from lcnn.config import M
 
-
 class WireframeDataset(Dataset):
-    def __init__(self, rootdir, split):
+    def __init__(self, rootdir, split, model_params=None):
         self.rootdir = rootdir
         filelist = glob.glob(f"{rootdir}/{split}/*_label.npz")
         filelist.sort()
@@ -23,11 +22,13 @@ class WireframeDataset(Dataset):
         print(f"n{split}:", len(filelist))
         self.split = split
         self.filelist = filelist
+        self.M = model_params
 
     def __len__(self):
         return len(self.filelist)
 
     def __getitem__(self, idx):
+        M = self.M
         iname = self.filelist[idx][:-10].replace("_a0", "").replace("_a1", "") + ".png"
         image = io.imread(iname).astype(float)[:, :, :3]
         if "a1" in self.filelist[idx]:

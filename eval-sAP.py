@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Evaluate sAP5, sAP10, sAP15 for LCNN
 Usage:
-    eval-sAP.py <path>...
+    eval-sAP.py [-s|--source <source>] <path>... 
     eval-sAP.py (-h | --help )
 
 Examples:
@@ -9,8 +9,10 @@ Examples:
 
 Arguments:
     <path>                           One or more directories from train.py
+    <source>                         Path to source directory
 
 Options:
+   -s --source <source>              source directory path.[default: data/wireframe/valid/*.npz]
    -h --help                         Show this screen.
 """
 
@@ -28,7 +30,8 @@ from docopt import docopt
 import lcnn.utils
 import lcnn.metric
 
-GT = "data/wireframe/valid/*.npz"
+# GT = "data/wireframe/valid/*.npz"
+
 
 
 def line_score(path, threshold=5):
@@ -68,6 +71,9 @@ def line_score(path, threshold=5):
 
 if __name__ == "__main__":
     args = docopt(__doc__)
+    print(args.keys())
+    GT = args["--source"]
+    print(GT)
 
     def work(path):
         print(f"Working on {path}")

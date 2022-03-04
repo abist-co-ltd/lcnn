@@ -47,6 +47,7 @@ def main():
     C.update(C.from_yaml(filename=config_file))
     M.update(C.model)
     pprint.pprint(C, indent=4)
+    print(M.image)
 
     random.seed(0)
     np.random.seed(0)
@@ -74,7 +75,7 @@ def main():
     else:
         raise NotImplementedError
 
-    checkpoint = torch.load(args["<checkpoint>"])
+    checkpoint = torch.load(args["<checkpoint>"], map_location=device)
     model = MultitaskLearner(model)
     model = LineVectorizer(model)
     model.load_state_dict(checkpoint["model_state_dict"])
@@ -82,7 +83,7 @@ def main():
     model.eval()
 
     loader = torch.utils.data.DataLoader(
-        WireframeDataset(args["<image-dir>"], split="valid"),
+        WireframeDataset(args["<image-dir>"], split="valid", model_params=M),
         shuffle=False,
         batch_size=M.batch_size,
         collate_fn=collate,
@@ -103,8 +104,8 @@ def main():
             for i in range(M.batch_size):
                 index = batch_idx * M.batch_size + i
                 np.savez(
-                    osp.join(args["<output-dir>"], f"{index:06}.npz"),
-                    **{k: v[i].cpu().numpy() for k, v in H.items()},
+                    osp.join(args["<output-dir>"], '{:06}.npz'.format(index)),
+                    **{k: v[i].cpu().numpy() for k, v in H.items()}
                 )
                 if not args["--plot"]:
                     continue
